@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>增加客房</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- 修改1：把href里的路径换成自己的 -->
+    <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css" media="all">
+     
+    <style>
+        /* 为带有require类的元素添加红色星号前缀 */
+        .required::before {
+            /* 星号内容 */
+            content: "*";
+            /* 红色 */
+            color: #ff0000;
+            /* 与文字保持一点距离 */
+            margin-right: 4px;
+            /* 星号加粗 */
+            font-weight: bold;				
+        }
+    </style>
+</head>
+<body>
+    <!-- 网页标题，这里用fieldset来设置 -->
+    <fieldset class="layui-elem-field layui-field-title">
+        <!-- 修改2：把“添加用户”换成自己的 -->
+        <legend style="font-weight: bold;">增加客房</legend>
+    </fieldset>
+
+    <!-- 表单开始，表单要加上样式class="layui-form"，添加lay-filter便于后续操作 -->
+    <div class="layui-form" lay-filter="addRoomForm">
+        <!-- 用户名表单项开始，表单项要加上样式class="layui-form-item" -->
+        <div class="layui-form-item">
+            <!--这里的required是网页头部定义的样式，在用户名前显示红色星号，提示用户用户名必填 -->
+            <label class="layui-form-label required">客房编号</label>
+            <!-- 文本框要按下面方式写，放在div里，样式和下面的一样-->
+            <div class="layui-input-block">
+                <!-- id是必须的，值由自己定；class="layui-input"指定文本框样式； lay-verify="required"用于表单验证，和后面的JS代码配合；
+             lay-reqtext="用户名不能为空!"：配合lay-verify="required"使用，设置自己定的提示文字，否则会显示默认的：“请输入必填项”
+             -->
+                <input id="username" type="text" name="username" class="layui-input" lay-verify="required"
+                    lay-reqtext="客房编号不能为空!" placeholder="请输入客房编号">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">客房类型</label>
+            <div class="layui-input-block">
+                <select name="roomType" lay-verify="required">
+                    <option value="1">请选择客房类型</option>
+                    <option value="2">大床房</option>
+                    <option value="3">双床房</option>
+                    <option value="2">家庭房</option>
+                    <option value="2">总统套房</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">客房面积(m2)</label>
+            <div class="layui-input-block">
+                <input id="kfmj" type="text" name="kfmj" class="layui-input" lay-verify="required"
+                    lay-reqtext="客房面积不能为空" placeholder="请输入客房面积">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">容纳人数</label>
+            <div class="layui-input-block">
+                <input id="rsrs" type="text" name="rsrs" class="layui-input" lay-verify="required"
+                    lay-reqtext="容纳人数不能为空" placeholder="请输入容纳人数">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">挂牌价(元)</label>
+            <div class="layui-input-block">
+                <input id="gpj" type="text" name="gpj" class="layui-input" lay-verify="required"
+                    lay-reqtext="挂牌价不能为空" placeholder="请输入挂牌价">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">会员价(元)</label>
+            <div class="layui-input-block">
+                <input id="hyj" type="text" name="hyj" class="layui-input" lay-verify="required"
+                    lay-reqtext="会员价不能为空" placeholder="请输入会员价">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">设施配置</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="ss" lay-skin="tag" title="WiFi">
+                <input type="checkbox" name="ss" lay-skin="tag" title="空调">
+                <input type="checkbox" name="ss" lay-skin="tag" title="独立卫浴"> <br>
+                <input type="checkbox" name="ss" lay-skin="tag" title="投影仪">
+                <input type="checkbox" name="ss" lay-skin="tag" title="电视">
+                <input type="checkbox" name="ss" lay-skin="tag" title="冰箱"> <br>
+                <input type="checkbox" name="ss" lay-skin="tag" title="热水器">
+                <input type="checkbox" name="ss" lay-skin="tag" title="书桌">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">上传图片</label>
+            <div class="layui-upload-drag" style="display: block;" id="ID-upload-demo-drag">
+              <i class="layui-icon layui-icon-upload"></i> 
+              <div>点击上传，或将文件拖拽到此处</div>
+              <div class="layui-hide" id="ID-upload-demo-preview">
+                <hr> <img src="" alt="上传成功后渲染" style="max-width: 100%">
+              </div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">客房状态</label>
+            <div class="layui-input-block">
+                <input type="radio" name="zt" value="启用" title="启用" checked="">
+                <input type="radio" name="zt" value="停用" title="停用">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注</label>
+            <div class="layui-input-block">
+                <textarea name="remark" class="layui-textarea" placeholder="请输入备注信息"></textarea>
+            </div>
+        </div> 
+        
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+                <button type="button" class="layui-btn layui-btn-primary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入layui核心JS文件，移到body底部确保DOM加载完成 -->
+    <script src="../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script>
+        // 初始化layui模块（form用于表单操作，layer用于弹窗提示）
+        layui.use(['form', 'layer', 'upload'], function () {
+            var form = layui.form,
+                layer = layui.layer,
+                upload = layui.upload;
+
+            // 1. 图片上传功能（保持原功能不变）
+            upload.render({
+                elem: '#ID-upload-demo-drag',
+                url: '/api/room/upload', // 实际项目中替换为后端图片上传接口
+                accept: 'images',
+                acceptMime: 'image/jpg,image/jpeg,image/png',
+                size: 5120, // 5MB
+                done: function (res) {
+                    if (res.code === 0) {
+                        $('#ID-upload-demo-preview').removeClass('layui-hide');
+                        $('#ID-upload-demo-preview img').attr('src', res.data.src);
+                        layer.msg('图片上传成功', { icon: 1, time: 1000 });
+                    } else {
+                        layer.msg('图片上传失败：' + res.msg, { icon: 2, time: 1500 });
+                    }
+                },
+                error: function () {
+                    layer.msg('图片上传出错，请重试', { icon: 2, time: 1500 });
+                }
+            });
+
+            // 2. 表单提交事件：实现“提交成功弹窗+重置”
+            form.on('submit(saveBtn)', function (data) {
+                // data.field 包含所有表单填写的内容，可用于向后端传递数据
+                // 此处模拟后端接口请求（实际项目中替换为真实的AJAX请求）
+                setTimeout(function () {
+                    // 弹出提交成功弹窗
+                    layer.msg('客房信息提交成功！', {
+                        icon: 1, // 成功图标
+                        time: 1500, // 弹窗显示时间（毫秒）
+                        shade: 0.3 // 遮罩透明度
+                    }, function () {
+                        // 弹窗关闭后执行表单重置
+                        resetAddRoomForm();
+                    });
+                }, 800); // 模拟网络请求延迟，增强真实感
+
+                // 阻止表单默认提交行为（必须加，否则会刷新页面）
+                return false;
+            });
+
+            // 3. 取消按钮事件：点击直接重置表单
+            $('#cancelBtn').on('click', function () {
+                resetAddRoomForm();
+                layer.msg('已取消操作，表单已重置', { icon: 0, time: 1200 });
+            });
+
+            // 4. 表单重置函数（复用逻辑，避免代码冗余）
+            function resetAddRoomForm() {
+                // 重置文本框、下拉框、单选框、复选框等表单元素
+                form.val('addRoomForm', {
+                    'username': '', // 客房编号
+                    'roomType': '1', // 客房类型重置为“请选择客房类型”
+                    'kfmj': '', // 客房面积
+                    'rsrs': '', // 容纳人数
+                    'gpj': '', // 挂牌价
+                    'hyj': '', // 会员价
+                    'zt': '启用', // 客房状态重置为“启用”
+                    'remark': '' // 备注
+                });
+
+                // 重置复选框（清除所有选中状态）
+                $('input[name="ss"]').prop('checked', false);
+                form.render('checkbox'); // 重新渲染复选框，确保状态更新
+
+                // 重置图片上传区域（隐藏预览图，清空图片）
+                $('#ID-upload-demo-preview').addClass('layui-hide');
+                $('#ID-upload-demo-preview img').attr('src', '');
+
+                // 清除表单验证错误提示（若有）
+                $('.layui-form-item').removeClass('layui-form-error');
+                $('.layui-form-mid.layui-text-red').remove();
+            }
+
+            // 初始化表单渲染（确保layui表单组件正常显示）
+            form.render();
+        });
+    </script>
+</body>
+</html>

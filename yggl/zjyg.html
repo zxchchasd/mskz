@@ -1,0 +1,237 @@
+html
+预览
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>增加会员</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- 修改1：把href里的路径换成自己的 -->
+    <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css" media="all">
+     
+    <style>
+        /* 为带有require类的元素添加红色星号前缀 */
+        .required::before {
+            /* 星号内容 */
+            content: "*";
+            /* 红色 */
+            color: #ff0000;
+            /* 与文字保持一点距离 */
+            margin-right: 4px;
+            /* 星号加粗 */
+            font-weight: bold;				
+        }
+    </style>
+</head>
+<body>
+    <!-- 网页标题，这里用fieldset来设置 -->
+    <fieldset class="layui-elem-field layui-field-title">
+        <!-- 修改2：把“添加用户”换成自己的 -->
+        <legend style="font-weight: bold;">增加会员</legend>
+    </fieldset>
+
+    <!-- 表单开始，添加lay-filter便于表单操作 -->
+    <div class="layui-form" lay-filter="addMemberForm">
+        <!-- 用户名表单项开始，表单项要加上样式class="layui-form-item" -->
+        <div class="layui-form-item">
+            <label class="layui-form-label required">姓名</label>
+            <div class="layui-input-block">
+                <input id="username" type="text" name="username" class="layui-input" lay-verify="required"
+                    lay-reqtext="姓名不能为空!" placeholder="请输入姓名">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">证件号码</label>
+            <div class="layui-input-block">
+                <input type="text" id="zjhm" name="zjhm" lay-verify="required" lay-reqtext="证件号码不能为空"
+                    placeholder="请输入证件号码" value="" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">性别</label>
+            <div class="layui-input-block">
+                <input type="radio" name="sex" value="男" title="男" checked="">
+                <input type="radio" name="sex" value="女" title="女">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">出生日期</label>
+            <div class="layui-input-inline">
+                <input id="csrq" type="text" name="csrq" placeholder="请选择出生日期" autocomplete="off"
+                    class="layui-input" lay-verify="required" lay-reqtext="出生日期不能为空">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">手机号</label>
+            <div class="layui-input-block">
+                <input type="text" id="phone" name="phone" lay-verify="required|phone" lay-reqtext="手机号不能为空"
+                    placeholder="请输入手机号" value="" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label ">邮箱</label>
+            <div class="layui-input-block">
+                <input type="email" name="email" lay-verify="email" placeholder="请输入邮箱" value="" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label">常住地址</label>
+            <div class="layui-input-block">
+                <textarea name="zzdz" class="layui-textarea" placeholder="请输入常住地址"></textarea>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">紧急联系人</label>
+            <div class="layui-input-block">
+                <input type="text" id="jjphone" name="jjphone" lay-verify="required" lay-reqtext="紧急联系人不能为空"
+                    placeholder="请输入紧急联系人" value="" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">入职手续文件</label>
+            <div class="layui-upload-drag" style="display: block;" id="ID-upload-demo-drag">
+              <i class="layui-icon layui-icon-upload"></i> 
+              <div>点击上传，或将文件拖拽到此处</div>
+              <div class="layui-hide" id="ID-upload-demo-preview">
+                <hr> <img src="" alt="上传成功后渲染" style="max-width: 100%">
+              </div>
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <label class="layui-form-label required">薪资</label>
+            <div class="layui-input-block">
+                <input type="text" id="xz" name="xz" lay-verify="required|number" lay-reqtext="薪资不能为空"
+                    placeholder="请输入薪资" value="" class="layui-input">
+            </div>
+        </div>
+        
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="saveBtn">确认保存</button>
+                <button type="button" class="layui-btn layui-btn-primary" style="margin-left: 10px;" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入layui核心JS文件，移至body底部确保DOM加载完成 -->
+    <script src="../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+    <script>
+        // 初始化layui模块（整合form、laydate、upload、layer，保留原有功能）
+        layui.use(['form', 'laydate', 'upload', 'layer'], function () {
+            var form = layui.form,
+                laydate = layui.laydate,
+                upload = layui.upload,
+                layer = layui.layer;
+
+            // 1. 完全保留原有出生日期选择器逻辑（年份选择无需确定，年份差≠±15时自动关闭）
+            laydate.render({
+                elem: '#csrq', // 出生日期文本框id
+                type: 'year', // 仅显示年份选择
+                trigger: 'click',
+                ready: function(date) { // 选择器打开时记录初始年份
+                    initYear = date.year;
+                },
+                change: function(value, date, endDate) { // 年份切换时触发
+                    var selectYear = date.year;
+                    var differ = selectYear - initYear;
+                    // 年份差不为±15时，自动赋值并关闭选择器（修复原代码赋值错误）
+                    if (differ != 15 && differ != -15) {
+                        if ($(".layui-laydate").length) {
+                            $("#csrq").val(value); // 赋值到出生日期输入框
+                            $(".layui-laydate").remove();
+                        }
+                    }
+                    initYear = selectYear;
+                }
+            });
+
+            // 2. 保留原文件上传功能（仅初始化，不修改逻辑）
+            upload.render({
+                elem: '#ID-upload-demo-drag',
+                url: '/api/member/upload', // 实际项目替换为后端上传接口
+                accept: 'file', // 支持所有文件类型
+                done: function (res) {
+                    if (res.code === 0) {
+                        $('#ID-upload-demo-preview').removeClass('layui-hide');
+                        $('#ID-upload-demo-preview img').attr('src', res.data.src);
+                        layer.msg('文件上传成功', { icon: 1, time: 1200 });
+                    } else {
+                        layer.msg('文件上传失败：' + res.msg, { icon: 2, time: 1500 });
+                    }
+                },
+                error: function () {
+                    layer.msg('文件上传出错，请重试', { icon: 2, time: 1500 });
+                }
+            });
+
+            // 3. 表单提交事件：实现“提交成功弹窗+重置”
+            form.on('submit(saveBtn)', function (data) {
+                // data.field 包含所有表单数据，实际项目可通过AJAX提交到后端
+                // 模拟后端接口请求（800ms延迟，增强真实感）
+                setTimeout(function () {
+                    // 提交成功弹窗（带成功图标、遮罩，1.5秒后关闭）
+                    layer.msg('会员信息提交成功！', {
+                        icon: 1,
+                        time: 1500,
+                        shade: 0.3
+                    }, function () {
+                        // 弹窗关闭后执行表单重置
+                        resetMemberForm();
+                    });
+                }, 800);
+
+                // 阻止表单默认提交（避免页面刷新）
+                return false;
+            });
+
+            // 4. 取消按钮事件：点击直接重置表单
+            $('#cancelBtn').on('click', function () {
+                resetMemberForm();
+                layer.msg('已取消操作，表单已重置', {
+                    icon: 0, // 提示图标
+                    time: 1200
+                });
+            });
+
+            // 5. 表单重置函数（全量重置所有元素，保留原有功能逻辑）
+            function resetMemberForm() {
+                // 1. 重置文本框、单选框、下拉框等基础表单元素
+                form.val('addMemberForm', {
+                    'username': '', // 姓名
+                    'zjhm': '', // 证件号码
+                    'sex': '男', // 性别重置为“男”（默认选中）
+                    'csrq': '', // 出生日期
+                    'phone': '', // 手机号
+                    'email': '', // 邮箱
+                    'zzdz': '', // 常住地址
+                    'jjphone': '', // 紧急联系人
+                    'xz': '' // 薪资
+                });
+
+                // 2. 重置文件上传区域（隐藏预览图，清空图片）
+                $('#ID-upload-demo-preview').addClass('layui-hide');
+                $('#ID-upload-demo-preview img').attr('src', '');
+
+                // 3. 清除表单验证错误样式（若有）
+                $('.layui-form-item').removeClass('layui-form-error');
+                $('.layui-form-mid.layui-text-red').remove();
+            }
+
+            // 初始化表单渲染（确保layui组件正常显示）
+            form.render();
+        });
+    </script>
+</body>
+</html>

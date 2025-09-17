@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员信息管理系统</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- 配置Tailwind自定义颜色和字体 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        success: '#52C41A',
+                        warning: '#FAAD14',
+                        danger: '#FF4D4F',
+                        info: '#40A9FF',
+                        light: '#F5F5F5',
+                        dark: '#1F2329'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .table-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .transition-bg {
+                transition: background-color 0.3s ease;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-inter text-dark">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- 页面标题 -->
+        <div class="mb-8">
+            <h1 class="text-[clamp(1.75rem,3vw,2.5rem)] font-bold text-dark mb-2">会员信息管理</h1>
+            <p class="text-gray-500">查看和管理所有会员的详细信息</p>
+        </div>
+        
+        <!-- 操作栏 -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <!-- 搜索框 -->
+            <div class="relative w-full md:w-64">
+                <input type="text" id="search-input" 
+                       class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                       placeholder="搜索会员...">
+                <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            
+            <!-- 筛选和按钮 -->
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <!-- 会员等级筛选 -->
+                <select id="level-filter" 
+                        class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all bg-white">
+                    <option value="all">所有等级</option>
+                    <option value="vip">VIP会员</option>
+                    <option value="premium">高级会员</option>
+                    <option value="standard">标准会员</option>
+                    <option value="basic">普通会员</option>
+                </select>
+                
+                <!-- 状态筛选 -->
+                <select id="status-filter" 
+                        class="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all bg-white">
+                    <option value="all">所有状态</option>
+                    <option value="active">活跃</option>
+                    <option value="inactive">非活跃</option>
+                    <option value="suspended">已暂停</option>
+                </select>
+                
+                <!-- 添加会员按钮 -->
+                <button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg transition-all flex items-center justify-center gap-2">
+                    <i class="fa fa-plus"></i>
+                    <span>添加会员</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 会员表格 -->
+        <div class="bg-white rounded-xl overflow-hidden table-shadow mb-6">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <!-- 表头 -->
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 tracking-wider">会员ID</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 tracking-wider">姓名</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 tracking-wider">邮箱</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 tracking-wider">会员等级</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 tracking-wider">注册日期</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600 tracking-wider">状态</th>
+                            <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600 tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    
+                    <!-- 表格内容 -->
+                    <tbody id="member-table-body" class="divide-y divide-gray-200">
+                        <!-- 会员1 -->
+                        <tr class="hover:bg-gray-50 transition-bg">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#M001</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-8 w-8 rounded-full object-cover" src="https://picsum.photos/id/1005/200/200" alt="张三的头像">
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">张三</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">zhangsan@example.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    VIP会员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-01-15</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    活跃
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3 transition-colors">
+                                    <i class="fa fa-edit"></i> 编辑
+                                </button>
+                                <button class="text-danger hover:text-danger/80 transition-colors">
+                                    <i class="fa fa-trash"></i> 删除
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- 会员2 -->
+                        <tr class="hover:bg-gray-50 transition-bg">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#M002</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-8 w-8 rounded-full object-cover" src="https://picsum.photos/id/1011/200/200" alt="李四的头像">
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">李四</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">lisi@example.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                    高级会员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-02-20</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    活跃
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3 transition-colors">
+                                    <i class="fa fa-edit"></i> 编辑
+                                </button>
+                                <button class="text-danger hover:text-danger/80 transition-colors">
+                                    <i class="fa fa-trash"></i> 删除
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- 会员3 -->
+                        <tr class="hover:bg-gray-50 transition-bg">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#M003</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-8 w-8 rounded-full object-cover" src="https://picsum.photos/id/1014/200/200" alt="王五的头像">
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">王五</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">wangwu@example.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    标准会员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-03-05</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    非活跃
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3 transition-colors">
+                                    <i class="fa fa-edit"></i> 编辑
+                                </button>
+                                <button class="text-danger hover:text-danger/80 transition-colors">
+                                    <i class="fa fa-trash"></i> 删除
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- 会员4 -->
+                        <tr class="hover:bg-gray-50 transition-bg">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#M004</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-8 w-8 rounded-full object-cover" src="https://picsum.photos/id/1027/200/200" alt="赵六的头像">
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">赵六</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">zhaoliu@example.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    普通会员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-04-12</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    已暂停
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3 transition-colors">
+                                    <i class="fa fa-edit"></i> 编辑
+                                </button>
+                                <button class="text-danger hover:text-danger/80 transition-colors">
+                                    <i class="fa fa-trash"></i> 删除
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- 会员5 -->
+                        <tr class="hover:bg-gray-50 transition-bg">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#M005</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-8 w-8 rounded-full object-cover" src="https://picsum.photos/id/1025/200/200" alt="孙七的头像">
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">孙七</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">sunqi@example.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                    高级会员
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-05-28</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    活跃
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-primary hover:text-primary/80 mr-3 transition-colors">
+                                    <i class="fa fa-edit"></i> 编辑
+                                </button>
+                                <button class="text-danger hover:text-danger/80 transition-colors">
+                                    <i class="fa fa-trash"></i> 删除
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 分页 -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-sm text-gray-500">
+                显示 <span class="font-medium">1</span> 到 <span class="font-medium">5</span> 条，共 <span class="font-medium">24</span> 条记录
+            </div>
+            <div class="flex items-center space-x-1">
+                <button class="px-3 py-1 rounded border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <button class="px-3 py-1 rounded border border-primary bg-primary text-white">1</button>
+                <button class="px-3 py-1 rounded border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">2</button>
+                <button class="px-3 py-1 rounded border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">3</button>
+                <button class="px-3 py-1 rounded border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">4</button>
+                <button class="px-3 py-1 rounded border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">5</button>
+                <button class="px-3 py-1 rounded border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript 功能 -->
+    <script>
+        // 模拟会员数据
+        const members = [
+            { id: '#M001', name: '张三', email: 'zhangsan@example.com', level: 'vip', joinDate: '2023-01-15', status: 'active', avatar: 'https://picsum.photos/id/1005/200/200' },
+            { id: '#M002', name: '李四', email: 'lisi@example.com', level: 'premium', joinDate: '2023-02-20', status: 'active', avatar: 'https://picsum.photos/id/1011/200/200' },
+            { id: '#M003', name: '王五', email: 'wangwu@example.com', level: 'standard', joinDate: '2023-03-05', status: 'inactive', avatar: 'https://picsum.photos/id/1014/200/200' },
+            { id: '#M004', name: '赵六', email: 'zhaoliu@example.com', level: 'basic', joinDate: '2023-04-12', status: 'suspended', avatar: 'https://picsum.photos/id/1027/200/200' },
+            { id: '#M005', name: '孙七', email: 'sunqi@example.com', level: 'premium', joinDate: '2023-05-28', status: 'active', avatar: 'https://picsum.photos/id/1025/200/200' },
+            { id: '#M006', name: '周八', email: 'zhouba@example.com', level: 'vip', joinDate: '2023-06-10', status: 'active', avatar: 'https://picsum.photos/id/1074/200/200' },
+            { id: '#M007', name: '吴九', email: 'wujiu@example.com', level: 'standard', joinDate: '2023-07-05', status: 'inactive', avatar: 'https://picsum.photos/id/1062/200/200' },
+            { id: '#M008', name: '郑十', email: 'zhengshi@example.com', level: 'basic', joinDate: '2023-08-18', status: 'active', avatar: 'https://picsum.photos/id/1066/200/200' }
+        ];
+        
+        // 获取DOM元素
+        const searchInput = document.getElementById('search-input');
+        const levelFilter = document.getElementById('level-filter');
+        const statusFilter = document.getElementById('status-filter');
+        const tableBody = document.getElementById('member-table-body');
+        
+        // 渲染会员表格
+        function renderTable(filteredMembers) {
+            // 清空表格
+            tableBody.innerHTML = '';
+            
+            // 如果没有符合条件的会员
+            if (filteredMembers.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                        <div class="flex flex-col items-center">
+                            <i class="fa fa-search-minus text-4xl mb-3 text-gray-300"></i>
+                            <p>没有找到符合条件的会员</p>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(emptyRow);
+                return;
+            }
+            
+            // 渲染会员数据
+            filteredMembers.forEach(member => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-bg';
+                
+                // 根据会员等级设置样式
+                let levelClass = '';
+                let levelText = '';
+                switch(member.level) {
+                    case 'vip':
+                        levelClass = 'bg-red-100 text-red-800';
+                        levelText = 'VIP会员';
+                        break;
+                    case 'premium':
+                        levelClass = 'bg-purple-100 text-purple-800';
+                        levelText = '高级会员';
+                        break;
+                    case 'standard':
+                        levelClass = 'bg-blue-100 text-blue-800';
+                        levelText = '标准会员';
+                        break;
+                    case 'basic':
+                        levelClass = 'bg-gray-100 text-gray-800';
+                        levelText = '普通会员';
+                        break;
+                }
+                
+                // 根据会员状态设置样式
+                let statusClass = '';
+                let statusText = '';
+                switch(member.status) {
+                    case 'active':
+                        statusClass = 'bg-green-100 text-green-800';
+                        statusText = '活跃';
+                        break;
+                    case 'inactive':
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                        statusText = '非活跃';
+                        break;
+                    case 'suspended':
+                        statusClass = 'bg-red-100 text-red-800';
+                        statusText = '已暂停';
+                        break;
+                }
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${member.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <img class="h-8 w-8 rounded-full object-cover" src="${member.avatar}" alt="${member.name}的头像">
+                            <div class="ml-3">
+                                <div class="text-sm font-medium text-gray-900">${member.name}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${member.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${levelClass}">
+                            ${levelText}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${member.joinDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                            ${statusText}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-primary hover:text-primary/80 mr-3 transition-colors edit-btn" data-id="${member.id}">
+                            <i class="fa fa-edit"></i> 编辑
+                        </button>
+                        <button class="text-danger hover:text-danger/80 transition-colors delete-btn" data-id="${member.id}">
+                            <i class="fa fa-trash"></i> 删除
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // 绑定编辑和删除按钮事件
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const memberId = btn.getAttribute('data-id');
+                    alert(`编辑会员: ${memberId}`);
+                    // 实际应用中这里会打开编辑表单
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const memberId = btn.getAttribute('data-id');
+                    if (confirm(`确定要删除会员 ${memberId} 吗？`)) {
+                        // 实际应用中这里会执行删除操作
+                        filterMembers(); // 重新筛选并渲染表格
+                    }
+                });
+            });
+        }
+        
+        // 筛选会员
+        function filterMembers() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedLevel = levelFilter.value;
+            const selectedStatus = statusFilter.value;
+            
+            // 筛选逻辑
+            const filtered = members.filter(member => {
+                // 搜索词筛选
+                const matchesSearch = 
+                    member.name.toLowerCase().includes(searchTerm) || 
+                    member.email.toLowerCase().includes(searchTerm) ||
+                    member.id.toLowerCase().includes(searchTerm);
+                
+                // 等级筛选
+                const matchesLevel = selectedLevel === 'all' || member.level === selectedLevel;
+                
+                // 状态筛选
+                const matchesStatus = selectedStatus === 'all' || member.status === selectedStatus;
+                
+                return matchesSearch && matchesLevel && matchesStatus;
+            });
+            
+            // 渲染筛选后的结果
+            renderTable(filtered);
+        }
+        
+        // 初始化事件监听
+        function initEventListeners() {
+            // 搜索输入事件
+            searchInput.addEventListener('input', filterMembers);
+            
+            // 筛选器变化事件
+            levelFilter.addEventListener('change', filterMembers);
+            statusFilter.addEventListener('change', filterMembers);
+        }
+        
+        // 初始化
+        function init() {
+            initEventListeners();
+            renderTable(members);
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

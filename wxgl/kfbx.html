@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酒店客房报修系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        accent: '#93C5FD',
+                        danger: '#EF4444',
+                        warning: '#F59E0B',
+                        success: '#10B981'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .form-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            }
+            .input-focus {
+                @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary;
+            }
+            .btn-effect {
+                @apply transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- 页面标题 -->
+        <div class="mb-8 text-center">
+            <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-2">客房报修表单</h1>
+            <p class="text-gray-600 max-w-2xl mx-auto">请填写以下信息提交客房设施故障或问题，工程部将尽快处理</p>
+        </div>
+        
+        <!-- 报修表单卡片 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden form-shadow mb-8">
+            <div class="p-6 md:p-8">
+                <form id="maintenance-form">
+                    <!-- 基本信息 -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fa fa-info-circle text-primary mr-2"></i>基本信息
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="room-number" class="block text-sm font-medium text-gray-700 mb-1">客房编号 <span class="text-danger">*</span></label>
+                                <div class="relative">
+                                    <i class="fa fa-building-o absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="room-number" name="room-number" placeholder="例如: 801" 
+                                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus transition-all">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="reporter" class="block text-sm font-medium text-gray-700 mb-1">报修人 <span class="text-danger">*</span></label>
+                                <div class="relative">
+                                    <i class="fa fa-user-o absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="reporter" name="reporter" placeholder="您的姓名" 
+                                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus transition-all">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="department" class="block text-sm font-medium text-gray-700 mb-1">所属部门 <span class="text-danger">*</span></label>
+                                <div class="relative">
+                                    <select id="department" name="department" 
+                                        class="w-full appearance-none pl-10 pr-10 py-2 border border-gray-300 rounded-lg input-focus transition-all bg-white">
+                                        <option value="">请选择部门</option>
+                                        <option value="front">前厅部</option>
+                                        <option value="housekeeping">客房部</option>
+                                        <option value="food">餐饮部</option>
+                                        <option value="engineering">工程部</option>
+                                        <option value="management">管理层</option>
+                                    </select>
+                                    <i class="fa fa-sitemap absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <i class="fa fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="contact" class="block text-sm font-medium text-gray-700 mb-1">联系电话 <span class="text-danger">*</span></label>
+                                <div class="relative">
+                                    <i class="fa fa-phone absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="tel" id="contact" name="contact" placeholder="您的联系电话" 
+                                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus transition-all">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 问题详情 -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fa fa-exclamation-triangle text-warning mr-2"></i>问题详情
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="problem-type" class="block text-sm font-medium text-gray-700 mb-1">问题类型 <span class="text-danger">*</span></label>
+                                <div class="relative">
+                                    <select id="problem-type" name="problem-type" 
+                                        class="w-full appearance-none pl-10 pr-10 py-2 border border-gray-300 rounded-lg input-focus transition-all bg-white">
+                                        <option value="">请选择问题类型</option>
+                                        <option value="electrical">电器问题</option>
+                                        <option value="plumbing"> plumbing问题</option>
+                                        <option value="furniture">家具问题</option>
+                                        <option value="hvac">空调/通风问题</option>
+                                        <option value="internet">网络/电视问题</option>
+                                        <option value="other">其他问题</option>
+                                    </select>
+                                    <i class="fa fa-wrench absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <i class="fa fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">紧急程度 <span class="text-danger">*</span></label>
+                                <div class="relative">
+                                    <select id="priority" name="priority" 
+                                        class="w-full appearance-none pl-10 pr-10 py-2 border border-gray-300 rounded-lg input-focus transition-all bg-white">
+                                        <option value="">请选择紧急程度</option>
+                                        <option value="low">低 - 可稍后处理</option>
+                                        <option value="medium">中 - 当天处理</option>
+                                        <option value="high">高 - 4小时内处理</option>
+                                        <option value="emergency">紧急 - 立即处理</option>
+                                    </select>
+                                    <i class="fa fa-clock-o absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <i class="fa fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">问题描述 <span class="text-danger">*</span></label>
+                                <textarea id="description" name="description" rows="4" placeholder="请详细描述问题情况，例如：空调无法制冷，打开后有异响..." 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition-all"></textarea>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">上传图片（可选）</label>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+                                    <input type="file" id="image-upload" name="images" multiple accept="image/*" class="hidden">
+                                    <label for="image-upload" class="cursor-pointer">
+                                        <div class="flex flex-col items-center">
+                                            <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+                                            <p class="text-gray-600 mb-1">点击或拖拽图片到此处上传</p>
+                                            <p class="text-xs text-gray-500">支持 JPG, PNG 格式，最大 5MB</p>
+                                        </div>
+                                    </label>
+                                    <!-- 预览区域 -->
+                                    <div id="image-preview" class="mt-4 flex flex-wrap gap-3 hidden">
+                                        <!-- 图片预览将在这里动态显示 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 附加信息 -->
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fa fa-sticky-note-o text-primary mr-2"></i>附加信息
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="availability" class="block text-sm font-medium text-gray-700 mb-1">房间可进入时间</label>
+                                <div class="relative">
+                                    <i class="fa fa-calendar-o absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="availability" name="availability" placeholder="例如: 14:00后可进入" 
+                                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus transition-all">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">特殊说明（可选）</label>
+                                <div class="relative">
+                                    <i class="fa fa-comment-o absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" id="notes" name="notes" placeholder="其他需要说明的事项" 
+                                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg input-focus transition-all">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 提交按钮 -->
+                    <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4 border-t border-gray-200">
+                        <button type="button" id="reset-btn" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium flex items-center justify-center btn-effect">
+                            <i class="fa fa-refresh mr-2"></i>重置
+                        </button>
+                        <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg font-medium flex items-center justify-center btn-effect">
+                            <i class="fa fa-paper-plane mr-2"></i>提交报修
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 最近报修记录 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden form-shadow">
+            <div class="p-6 md:p-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                    <i class="fa fa-history text-primary mr-2"></i>最近报修记录
+                </h2>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">报修单号</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客房</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">问题类型</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交时间</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">RQ-2023-589</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">801房</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">空调问题</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2023-10-22 09:15</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">处理中</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">RQ-2023-588</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">503房</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">淋浴问题</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2023-10-22 08:45</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已完成</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">RQ-2023-587</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">302房</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">电视问题</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2023-10-21 16:30</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">已完成</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <a href="#" class="text-primary hover:text-primary/80 text-sm font-medium flex items-center justify-center">
+                        查看所有报修记录 <i class="fa fa-angle-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提交成功弹窗 -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform transition-all">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa fa-check text-2xl text-success"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">报修提交成功</h3>
+                <p class="text-gray-600 mb-6">您的报修申请已提交，报修单号：<span class="font-medium" id="modal-order-number">RQ-2023-590</span></p>
+                <p class="text-gray-500 text-sm mb-6">工程部将根据紧急程度尽快处理您的报修请求</p>
+                <button id="close-modal" class="w-full py-3 bg-primary text-white rounded-lg font-medium btn-effect">
+                    确认
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 图片上传预览功能
+        const imageUpload = document.getElementById('image-upload');
+        const imagePreview = document.getElementById('image-preview');
+        
+        imageUpload.addEventListener('change', function(e) {
+            // 显示预览区域
+            imagePreview.classList.remove('hidden');
+            
+            // 清空现有预览
+            imagePreview.innerHTML = '';
+            
+            // 预览新选择的图片
+            Array.from(e.target.files).forEach(file => {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const previewContainer = document.createElement('div');
+                    previewContainer.className = 'relative group';
+                    
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.className = 'w-24 h-24 object-cover rounded-md border';
+                    img.alt = '报修图片预览';
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'absolute -top-2 -right-2 bg-danger text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity';
+                    removeBtn.innerHTML = '<i class="fa fa-times"></i>';
+                    removeBtn.onclick = function() {
+                        previewContainer.remove();
+                        // 如果没有预览图片了，隐藏预览区域
+                        if (imagePreview.children.length === 0) {
+                            imagePreview.classList.add('hidden');
+                        }
+                    };
+                    
+                    previewContainer.appendChild(img);
+                    previewContainer.appendChild(removeBtn);
+                    imagePreview.appendChild(previewContainer);
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        // 表单提交处理
+        const maintenanceForm = document.getElementById('maintenance-form');
+        const successModal = document.getElementById('success-modal');
+        const closeModal = document.getElementById('close-modal');
+        const modalOrderNumber = document.getElementById('modal-order-number');
+        
+        maintenanceForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 简单表单验证
+            const requiredFields = ['room-number', 'reporter', 'department', 'contact', 'problem-type', 'priority', 'description'];
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (!element.value.trim()) {
+                    isValid = false;
+                    element.classList.add('border-danger');
+                    // 添加抖动效果
+                    element.classList.add('animate-shake');
+                    setTimeout(() => {
+                        element.classList.remove('animate-shake');
+                    }, 500);
+                } else {
+                    element.classList.remove('border-danger');
+                }
+            });
+            
+            if (!isValid) {
+                // 显示错误提示
+                alert('请填写所有必填字段');
+                return;
+            }
+            
+            // 生成随机报修单号
+            const randomNum = Math.floor(100 + Math.random() * 900);
+            modalOrderNumber.textContent = `RQ-2023-${randomNum}`;
+            
+            // 显示成功弹窗
+            successModal.classList.remove('hidden');
+            
+            // 重置表单
+            maintenanceForm.reset();
+            imagePreview.innerHTML = '';
+            imagePreview.classList.add('hidden');
+        });
+        
+        // 关闭弹窗
+        closeModal.addEventListener('click', function() {
+            successModal.classList.add('hidden');
+        });
+        
+        // 重置按钮
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            if (confirm('确定要重置表单吗？已填写的内容将被清空。')) {
+                maintenanceForm.reset();
+                imagePreview.innerHTML = '';
+                imagePreview.classList.add('hidden');
+                // 移除所有错误边框
+                document.querySelectorAll('.border-danger').forEach(el => {
+                    el.classList.remove('border-danger');
+                });
+            }
+        });
+        
+        // 点击弹窗外部关闭弹窗
+        successModal.addEventListener('click', function(e) {
+            if (e.target === successModal) {
+                successModal.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

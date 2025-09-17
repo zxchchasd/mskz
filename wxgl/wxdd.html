@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>酒店维修订单管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        status: {
+                            pending: '#F59E0B',     // 待处理 - 黄色
+                            inprogress: '#3B82F6',  // 处理中 - 蓝色
+                            completed: '#10B981',   // 已完成 - 绿色
+                            cancelled: '#EF4444'    // 已取消 - 红色
+                        },
+                        priority: {
+                            low: '#94A3B8',         // 低优先级 - 灰色
+                            medium: '#3B82F6',      // 中优先级 - 蓝色
+                            high: '#F59E0B',        // 高优先级 - 橙色
+                            emergency: '#EF4444'    // 紧急 - 红色
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            }
+            .hover-effect {
+                @apply transition-all duration-200 hover:shadow-md;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <main class="container mx-auto px-4 py-8">
+        <!-- 页面标题和控制区 -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-2">维修订单管理</h2>
+                    <p class="text-gray-600">跟踪和处理酒店内所有维修请求和工作订单</p>
+                </div>
+                <div class="flex flex-wrap gap-3 w-full md:w-auto">
+                    <button class="bg-primary text-white px-4 py-2 rounded-lg flex items-center hover:bg-primary/90 transition-colors">
+                        <i class="fa fa-plus mr-2"></i>创建新订单
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 搜索和筛选区域 -->
+            <div class="bg-white rounded-lg p-4 shadow-sm mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="relative">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input 
+                            type="text" 
+                            placeholder="搜索订单号、房间号或问题描述..." 
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                        >
+                    </div>
+                    <div>
+                        <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                            <option value="">所有状态</option>
+                            <option value="pending">待处理</option>
+                            <option value="inprogress">处理中</option>
+                            <option value="completed">已完成</option>
+                            <option value="cancelled">已取消</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                            <option value="">所有优先级</option>
+                            <option value="low">低</option>
+                            <option value="medium">中</option>
+                            <option value="high">高</option>
+                            <option value="emergency">紧急</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+                            <option value="">所有区域</option>
+                            <option value="guestroom">客房</option>
+                            <option value="restaurant">餐厅</option>
+                            <option value="lobby">大堂</option>
+                            <option value="meeting">会议室</option>
+                            <option value="facility">公共设施</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg flex items-center mr-3 hover:bg-gray-200 transition-colors">
+                        <i class="fa fa-refresh mr-2"></i>重置
+                    </button>
+                    <button class="bg-primary text-white px-4 py-2 rounded-lg flex items-center hover:bg-primary/90 transition-colors">
+                        <i class="fa fa-filter mr-2"></i>筛选
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <!-- 总订单数 -->
+            <div class="bg-white rounded-xl p-5 card-shadow hover-effect">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">总订单数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">48</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <i class="fa fa-list-alt text-primary"></i>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-status-pending text-sm font-medium">12 个待处理</span>
+                </div>
+            </div>
+            
+            <!-- 处理中订单 -->
+            <div class="bg-white rounded-xl p-5 card-shadow hover-effect">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">处理中订单</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">18</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-status-inprogress/10 flex items-center justify-center">
+                        <i class="fa fa-cogs text-status-inprogress"></i>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-500 text-sm">占总订单 37.5%</span>
+                </div>
+            </div>
+            
+            <!-- 已完成订单 -->
+            <div class="bg-white rounded-xl p-5 card-shadow hover-effect">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">已完成订单</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">16</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-status-completed/10 flex items-center justify-center">
+                        <i class="fa fa-check-circle text-status-completed"></i>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-success text-sm font-medium">+5 较昨日</span>
+                </div>
+            </div>
+            
+            <!-- 紧急订单 -->
+            <div class="bg-white rounded-xl p-5 card-shadow hover-effect">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">紧急订单</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">2</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-priority-emergency/10 flex items-center justify-center">
+                        <i class="fa fa-exclamation-triangle text-priority-emergency"></i>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-500 text-sm">需要立即处理</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 维修订单列表 -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card-shadow">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                订单编号
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                位置
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                问题描述
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                提交人
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                优先级
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                状态
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                提交时间
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                负责人
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                操作
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- 订单1 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">WO-2023-048</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <i class="fa fa-bed text-gray-400 mr-2"></i>
+                                    <span class="text-sm text-gray-600">客房 - 801房</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600 max-w-xs">空调无法制冷，客人反映房间温度过高</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-6 w-6 rounded-full mr-2" src="https://picsum.photos/id/1012/30/30" alt="张明的照片">
+                                    <span class="text-sm text-gray-600">张明</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-priority-high/10 text-priority-high">高</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-status-inprogress/10 text-status-inprogress">处理中</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2023-10-22 09:15</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-6 w-6 rounded-full mr-2" src="https://picsum.photos/id/1074/30/30" alt="赵强的照片">
+                                    <span class="text-sm text-gray-600">赵强</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fa fa-pencil"></i> 编辑
+                                </button>
+                                <button class="text-gray-600 hover:text-gray-900">
+                                    <i class="fa fa-eye"></i> 详情
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- 订单2 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">WO-2023-047</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <i class="fa fa-cutlery text-gray-400 mr-2"></i>
+                                    <span class="text-sm text-gray-600">餐厅 - 宴会厅A</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600 max-w-xs">投影仪无法连接到笔记本电脑，明日有重要会议</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-6 w-6 rounded-full mr-2" src="https://picsum.photos/id/1062/30/30" alt="刘静的照片">
+                                    <span class="text-sm text-gray-600">刘静</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-priority-emergency/10 text-priority-emergency">紧急</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-status-pending/10 text-status-pending">待处理</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2023-10-22 14:30</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">未分配</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fa fa-pencil"></i> 编辑
+                                </button>
+                                <button class="text-gray-600 hover:text-gray-900">
+                                    <i class="fa fa-eye"></i> 详情
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- 订单3 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">WO-2023-046</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <i class="fa fa-bath text-gray-400 mr-2"></i>
+                                    <span class="text-sm text-gray-600">客房 - 503房</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600 max-w-xs">淋浴喷头漏水，水压不足</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-6 w-6 rounded-full mr-2" src="https://picsum.photos/id/1027/30/30" alt="李华的照片">
+                                    <span class="text-sm text-gray-600">李华</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-priority-medium/10 text-priority-medium">中</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-status-completed/10 text-status-completed">已完成</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2023-10-22 08:45</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-6 w-6 rounded-full mr-2" src="https://picsum.photos/id/1074/30/30" alt="赵强的照片">
+                                    <span class="text-sm text-gray-600">赵强</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fa fa-pencil"></i> 编辑
+                                </button>
+                                <button class="text-gray-600 hover:text-gray-900">
+                                    <i class="fa fa-eye"></i> 详情
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- 订单4 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">WO-2023-045</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <i class="fa fa-coffee text-gray-400 mr-2"></i>
+                                    <span class="text-sm text-gray-600">大堂 - 咖啡厅</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600 max-w-xs">咖啡机故障，无法制作咖啡</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-6 w-6 rounded-full mr-2" src="https://picsum.photos/id/1025/30/30" alt="王芳的照片">
+                                    <span class="text-sm text-gray-600">王芳</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-priority-high/10 text-priority-high">高</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-status-inprogress/10 text-status-inprogress">处理中</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2023-10-21 16:20</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-6 w-6 rounded-full mr-2" src="https://picsum.photos/id/1074/30/30" alt="赵强的照片">
+                                    <span class="text-sm text-gray-600">赵强</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fa fa-pencil"></i> 编辑
+                                </button>
+                                <button class="text-gray-600 hover:text-gray-900">
+                                    <i class="fa fa-eye"></i> 详情
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- 订单5 -->
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">WO-2023-044</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <i class="fa fa-lightbulb-o text-gray-400 mr-2"></i>
+                                    <span class="text-sm text-gray-600">公共设施 - 3楼走廊</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-600 max-w-xs">多个天花板灯不亮，需要更换灯泡</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <img class="h-6 w-6 rounded-full mr-2" src="https://picsum.photos/id/1027/30/30" alt="李华的照片">
+                                    <span class="text-sm text-gray-600">李华</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-priority-low/10 text-priority-low">低</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-status-pending/10 text-status-pending">待处理</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2023-10-21 10:10</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">未分配</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fa fa-pencil"></i> 编辑
+                                </button>
+                                <button class="text-gray-600 hover:text-gray-900">
+                                    <i class="fa fa-eye"></i> 详情
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 分页控制 -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-sm text-gray-700 mb-4 md:mb-0">
+                    显示 <span class="font-medium">1</span> 到 <span class="font-medium">5</span> 条，共 <span class="font-medium">48</span> 条记录
+                </div>
+                <div class="flex space-x-1">
+                    <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50" disabled>
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <button class="px-3 py-1 border border-primary bg-primary text-white rounded-md">1</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50">2</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50">3</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50">4</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50">5</button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 筛选和搜索功能可以在这里实现
+        document.querySelector('button:has(.fa-filter)').addEventListener('click', function() {
+            alert('筛选功能已应用');
+        });
+        
+        document.querySelector('button:has(.fa-refresh)').addEventListener('click', function() {
+            // 重置所有筛选条件
+            document.querySelectorAll('input[type="text"], select').forEach(el => {
+                el.value = '';
+            });
+            alert('筛选条件已重置');
+        });
+        
+        // 创建新订单按钮
+        document.querySelector('button:has(.fa-plus)').addEventListener('click', function() {
+            alert('将打开新订单创建表单');
+        });
+        
+        // 分页按钮点击事件
+        document.querySelectorAll('.flex.space-x-1 button:not(:disabled)').forEach(button => {
+            button.addEventListener('click', function() {
+                const page = this.textContent.trim() || (this.querySelector('.fa-chevron-right') ? '下一页' : '上一页');
+                alert(`切换到${page}`);
+            });
+        });
+        
+        // 编辑和详情按钮事件
+        document.querySelectorAll('button:has(.fa-pencil), button:has(.fa-eye)').forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.closest('tr').querySelector('td:first-child').textContent;
+                const action = this.querySelector('.fa-pencil') ? '编辑' : '查看详情';
+                alert(`${action} 订单: ${orderId}`);
+            });
+        });
+    </script>
+</body>
+</html>

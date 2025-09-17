@@ -1,0 +1,151 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href": "ll/home.html"
+  },
+  "logoInfo": {
+    "title": "民俗客栈",
+    "image": "images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "仪表盘",
+          "href": "ll/home.html",
+          "icon": "fa fa-home",
+          "target": "_self"
+        },
+        {
+          "title": "客房管理",
+          "href": "",
+          "icon": "fa fa-group",
+          "target": "_self",
+          "child": [
+          {
+            "title": "增加客房",
+            "href": "kfgl/zjkf.html",
+            "icon": "fa fa-plus-square-o",
+            "target": "_self"
+          }, {
+            "title": "查询客房",
+            "href": "kfgl/cxkf.html",
+            "icon": "fa fa-search",
+            "target": "_self"
+          },{
+			  "title": "客房统计",
+			  "href": "kfgl/kftj.html",
+			  "icon": "fa fa-search",
+			  "target": "_self"
+		  }
+        ]
+        },
+        {
+          "title": "预定管理",
+          "href": "",
+          "icon": "fa fa-institution",
+          "target": "_self",
+          "child": [
+            {
+              "title": "预定订单",
+              "href": "ydgl/yddd.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "入住办理",
+              "href": "ydgl/rzgl.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            } 
+          ]
+        },
+        {
+          "title": "会员管理",
+          "href": "",
+          "icon": "fa fa-male",
+          "target": "_self",
+          "child": [
+            {
+              "title": "客户信息",
+              "href": "hygl/hyxx.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "增加会员",
+              "href": "hygl/zjhy.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "员工管理",
+          "href": "",
+          "icon": "fa fa-trophy",
+          "target": "_self",
+          "child": [
+            {
+              "title": "增加员工",
+              "href": "yggl/zjyg.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "员工信息",
+              "href": "yggl/ygxx.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+            },{
+				"title": "排班表",
+				"href": "yggl/pbb.html",
+				"icon": "fa fa-search",
+				"target": "_self"
+			}
+          ]
+        },
+        {
+          "title": "财务管理",
+          "href": "",
+          "icon": "fa fa-paw",
+          "target": "_self",
+          "child": [
+            {
+              "title": "收支记录",
+              "href": "cwgl/szjl.html",
+              "icon": "fa fa-plus-circle",
+              "target": "_self"
+            }, {
+              "title": "财务报表",
+              "href": "cwgl/cwbb.html",
+              "icon": "fa fa-search-plus",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "维修管理",
+          "href": "",
+          "icon": "fa fa-eye",
+          "target": "_self",
+          "child": [
+            {
+              "title": "维修订单",
+              "href": "wxgl/wxdd.html",
+              "icon": "fa fa-plus-square-o",
+              "target": "_self"
+            }, {
+              "title": "客房报修",
+              "href": "wxgl/kfbx.html",
+              "icon": "fa fa-search",
+              "target": "_self"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
